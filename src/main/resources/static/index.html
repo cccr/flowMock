@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlowMock</title>
+</head>
+<body>
+<script src="./utils.js"></script>
+<script>
+
+    var steps = 0;
+
+    var mock = {
+        "initial": "",
+        "step": {}
+    };
+
+    function save() {
+        mock.initial = gebi("initial").value;
+        var steps = document.getElementsByClassName("step");
+
+        [].forEach.call(steps, function (el) {
+            var tmpObj = {
+                "label": el.getElementsByClassName("label")[0].value,
+                "paramName": el.getElementsByClassName("paramName")[0].value,
+                "values": el.getElementsByClassName("values")[0].value.match(/[^\r\n]+/g),
+                "nextStep": {}
+            };
+
+            if (Object.keys(mock.step).length == 0) {
+                Object.assign(mock.step, tmpObj);
+            } else {
+                var z = mock.step;
+                while (Object.keys(z.nextStep).length != 0)
+                    z = z.nextStep;
+                Object.assign(z.nextStep, tmpObj);
+            }
+
+
+        });
+
+        post("./mocks", console.log, mock);
+
+    }
+
+    function addStep() {
+        var stepId = "step_" + steps;
+
+        var step = createElement("div", "", {"id": stepId}, ["step"], gebi("steps"));
+
+        var labelInputLabel = createElement("label", "Label", {"for": "label_" + stepId}, [], step);
+        var labelInput = createElement("input", "", {"id": "label_" + stepId}, ["label"], step);
+
+        createElement("br", "", {}, [], step);
+
+        var paramNameInputLabel = createElement("label", "ParamName", {"for": "paramName_" + stepId}, [], step);
+        var paramNameInput = createElement("input", "", {"id": "paramName_" + stepId}, ["paramName"], step);
+
+        createElement("br", "", {}, [], step);
+
+        var valuesInputLabel = createElement("label", "Values", {"for": "values_" + stepId}, [], step);
+        var valuesInput = createElement("textarea", "", {"id": "values_" + stepId, "rows": 4}, ["values"], step);
+
+        steps++;
+    }
+
+    ready(addStep);
+</script>
+<label for="initial">Mock path will start with:</label><input id="initial">
+<div id="steps"></div>
+<button onclick="addStep()">add step</button>
+<button onclick="save()">save</button>
+</body>
+</html>
